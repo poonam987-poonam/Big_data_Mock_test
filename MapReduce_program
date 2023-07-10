@@ -1,0 +1,49 @@
+Write a MapReduce program to calculate the word count of a given input text file
+
+#!/usr/bin/env python
+
+import sys
+
+# Map function
+def mapper():
+    for line in sys.stdin:
+        # Split the line into words
+        words = line.strip().split()
+        for word in words:
+            # Emit each word as a key-value pair
+            print(f"{word}\t1")
+
+# Reduce function
+def reducer():
+    current_word = None
+    word_count = 0
+
+    for line in sys.stdin:
+        # Split the input line into word and count
+        word, count = line.strip().split('\t')
+
+        if current_word is None:
+            current_word = word
+
+        # If the word is the same, increment the count
+        if word == current_word:
+            word_count += int(count)
+        else:
+            # Emit the previous word and its count
+            print(f"{current_word}\t{word_count}")
+
+            # Reset the word and count for the new word
+            current_word = word
+            word_count = int(count)
+
+    # Emit the last word and its count
+    if current_word is not None:
+        print(f"{current_word}\t{word_count}")
+
+if __name__ == "__main__":
+    # Determine the operation (mapper or reducer) based on command-line arguments
+    operation = sys.argv[1]
+    if operation == "mapper":
+        mapper()
+    elif operation == "reducer":
+        reducer()
